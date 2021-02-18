@@ -37,7 +37,7 @@ namespace EASEncoder
         private static Dictionary<decimal, List<int>> headerByteCache = new Dictionary<decimal, List<int>>();
 
         public static void CreateNewMessage(EASMessage message, bool ebsTone = true, bool nwsTone = false,
-            string announcement = "")
+            string announcement = "", string filename = "")
         {
             //headerByteCache = new Dictionary<decimal, List<int>>();
             _useEbsTone = ebsTone;
@@ -119,8 +119,8 @@ namespace EASEncoder
                 GenerateVoiceAnnouncement(announcement);
             _announcementSamples = _announcementStream.Length;
 
-            GenerateWavFile();
-            GenerateMp3File();
+            GenerateWavFile(filename);
+            GenerateMp3File(filename);
         }
 
         public static MemoryStream GetMemoryStreamFromNewMessage(EASMessage message, bool ebsTone = true,
@@ -252,7 +252,7 @@ namespace EASEncoder
             return output;
         }
 
-        private static void GenerateWavFile(string filename = "output")
+        private static void GenerateWavFile(string filename = "")
         {
             var f = new FileStream(filename + ".wav", FileMode.Create);
             using (var wr = new BinaryWriter(f))
@@ -262,7 +262,7 @@ namespace EASEncoder
             f.Close();
         }
 
-        private static void GenerateMp3File(string filename = "output")
+        private static void GenerateMp3File(string filename = "")
         {
 
             using (var reader = new WaveFileReader(GenerateMemoryStream()))
@@ -392,7 +392,7 @@ namespace EASEncoder
 
                 foreach (var thisChar in _silenceSamples)
                 {
-                    wr.Write((byte) (thisChar));
+                    wr.Write((byte)(thisChar));
                 }
             }
 
@@ -412,7 +412,7 @@ namespace EASEncoder
             {
                 foreach (var thisChar in _silenceSamples)
                 {
-                    wr.Write((byte) (thisChar));
+                    wr.Write((byte)(thisChar));
                 }
 
                 foreach (var thisChar in _eomSamples)
@@ -425,7 +425,7 @@ namespace EASEncoder
 
             foreach (var thisChar in _silenceSamples)
             {
-                wr.Write((byte) (thisChar));
+                wr.Write((byte)(thisChar));
             }
             wr.Flush();
             f.Position = 0;

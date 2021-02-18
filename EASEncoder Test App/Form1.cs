@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
+using System.Drawing;
 using EASEncoder.Models;
 using EASEncoder.Models.SAME;
 using NAudio.Wave;
@@ -27,6 +28,18 @@ namespace EASEncoder_Test_App
         public Form1()
         {
             InitializeComponent();
+            if (Properties.Settings.Default.isLightMode)
+            {
+                this.BackColor = VisualStudioDark;
+                ChangeControlColor(VisualStudioLight, VisualStudioDark);
+                colorModeChangeButton.Text = "Dark mode";
+            }
+            else
+            {
+                this.BackColor = Color.FromKnownColor(KnownColor.Control);
+                ChangeControlColor(VisualStudioDark, VisualStudioLight);
+                colorModeChangeButton.Text = "Light mode";
+            }
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -36,7 +49,7 @@ namespace EASEncoder_Test_App
             var bindingList = new BindingList<SAMERegion>(Regions);
             var source = new BindingSource(bindingList, null);
             datagridRegions.DataSource = source;
-            
+
 
             dateStart.ShowUpDown = true;
             dateStart.CustomFormat = "MM/dd/yyyy hh:mm tt";
@@ -90,7 +103,7 @@ namespace EASEncoder_Test_App
             _selectedOriginator = MessageTypes.Originators.FirstOrDefault(y => y.Name == comboOriginator.Text);
         }
 
-        private void btnGenerate_Click(object sender, EventArgs e)
+        private void btnGenerate_Click(object sender, EventArgs e) 
         {
             if (!ValidateInput())
             {
@@ -111,7 +124,7 @@ namespace EASEncoder_Test_App
             }
 
             EASEncoder.EASEncoder.CreateNewMessage(newMessage, chkEbsTones.Checked, chkNwsTone.Checked,
-                formatAnnouncement(txtAnnouncement.Text));
+                formatAnnouncement(txtAnnouncement.Text), txtOutputFile.Text);
         }
 
         internal string ZeroPad(string String, int Length)
@@ -261,6 +274,59 @@ namespace EASEncoder_Test_App
         {
             //parse vtec
             // (\/)(O)(.)(NEW|CON|EXT|EXA|EXB|UPG|CAN|EXP|COR|ROU)(.)([\w]{4})(.)([A-Z][A-Z])(.)([WAYSFON])(.)([0-9]{4})(.)([0-9]{6})(T)([0-9]{4})(Z)([-])([0-9]{6})([T])([0-9]{4})([Z])(\/)?
+        }
+
+        private void colorModeChangeButton_Click(object sender, EventArgs e) {
+            ToggleColorMode();
+        }
+        private readonly Color VisualStudioDark = Color.FromArgb(255, 30, 30, 30);
+        private readonly Color VisualStudioLight = Color.FromArgb(255, 220, 220, 220);
+        private void ToggleColorMode() {
+            Properties.Settings.Default.isLightMode = !Properties.Settings.Default.isLightMode;
+            Properties.Settings.Default.Save();
+            if (Properties.Settings.Default.isLightMode)
+            {
+                this.BackColor = VisualStudioDark;
+                ChangeControlColor(VisualStudioLight, VisualStudioDark);
+                colorModeChangeButton.Text = "Dark mode";
+            }
+            else
+            {
+                this.BackColor = Color.FromKnownColor(KnownColor.Control);
+                ChangeControlColor(VisualStudioDark, VisualStudioLight);
+                colorModeChangeButton.Text = "Light mode";
+            }
+        }
+
+        private void ChangeControlColor(Color foreColor, Color backColor) {
+            foreach (Label label in Controls.OfType<Label>().Cast<Control>().ToList())
+            {
+                label.ForeColor = foreColor;
+            }
+            foreach (RadioButton radioButton in Controls.OfType<RadioButton>().Cast<Control>().ToList())
+            {
+                radioButton.ForeColor = foreColor;
+            }
+            foreach (ComboBox comboBox in Controls.OfType<ComboBox>().Cast<Control>().ToList())
+            {
+                comboBox.ForeColor = foreColor;
+                comboBox.BackColor = backColor;
+            }
+            foreach(DateTimePicker dateTimePicker in Controls.OfType<DateTimePicker>().Cast<Control>().ToList())
+            {
+                dateTimePicker.CalendarTitleForeColor = foreColor;
+                dateTimePicker.CalendarMonthBackground = backColor;
+            }
+            foreach (TextBox comboBox in Controls.OfType<TextBox>().Cast<Control>().ToList())
+            {
+                comboBox.ForeColor = foreColor;
+                comboBox.BackColor = backColor;
+            }
+            foreach(DataGridView dataGridView in Controls.OfType<DataGridView>().Cast<Control>().ToList())
+            {
+                dataGridView.ForeColor = foreColor;
+                dataGridView.BackgroundColor = backColor;                
+            }
         }
     }
 }
